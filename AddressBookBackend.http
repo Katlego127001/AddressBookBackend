@@ -1,0 +1,6 @@
+@AddressBookBackend_HostAddress = http://localhost:5008
+
+GET {{AddressBookBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
