@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AddressBookApi.Data;
+using AddressBookBackend.Data;
+
+using AddressBookBackend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,13 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AddressBookContext>();
     context.Database.EnsureCreated(); // Creates the database and seeds the data
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AddressBookContext>();
+    context.Database.EnsureDeleted(); // Deletes existing DB
+    context.Database.EnsureCreated(); // Creates new DB with current schema
 }
 
 app.Run();
