@@ -56,32 +56,48 @@ public class ContactsController : ControllerBase
     {
         var contact = _context.Contacts.Find(id);
         if (contact == null) return NotFound();
-        
-        // Create a simple PDF in memory
-        var stream = new MemoryStream();
-        var writer = new PdfWriter(stream);
-        var pdf = new PdfDocument(writer);
-        var document = new Document(pdf);
-        
-        // Add CV content
-        document.Add(new Paragraph($"Curriculum Vitae")
-            .SetTextAlignment(TextAlignment.CENTER)
-            .SetFontSize(20));
-        
-        document.Add(new Paragraph($"{contact.FirstName} {contact.Surname}")
-            .SetTextAlignment(TextAlignment.CENTER)
-            .SetFontSize(16));
-        
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph($"Email: {contact.Email}"));
-        document.Add(new Paragraph($"Phone: {contact.Phone}"));
-        document.Add(new Paragraph($"Website: {contact.Website}"));
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph("Professional Summary"));
-        document.Add(new Paragraph(contact.Bio));
-        
-        document.Close();
-        
-        return File(stream.ToArray(), "application/pdf", $"{contact.FirstName}_{contact.Surname}_CV.pdf");
+
+        try 
+        {
+            // Create a temporary memory stream for PDF generation
+            var tempStream = new MemoryStream();
+            
+            // Generate PDF to temporary stream
+            using (var writer = new PdfWriter(tempStream))
+            using (var pdf = new PdfDocument(writer))
+            using (var document = new Document(pdf))
+            {
+                // PDF Content
+                document.Add(new Paragraph("CURRICULUM VITAE")
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(20));
+                
+                document.Add(new Paragraph($"{contact.FirstName} {contact.Surname}")
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(16));
+                
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph($"Email: {contact.Email}"));
+                document.Add(new Paragraph($"Phone: {contact.Phone}"));
+                document.Add(new Paragraph($"Website: {contact.Website}"));
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph("PROFESSIONAL SUMMARY"));
+                document.Add(new Paragraph(contact.Bio));
+            }
+
+            // Create a new stream from the generated PDF bytes
+            var pdfBytes = tempStream.ToArray();
+            var resultStream = new MemoryStream(pdfBytes);
+            
+            // Return the file - resultStream will be disposed by FileStreamResult
+            return File(resultStream, "application/pdf", $"{contact.FirstName}_{contact.Surname}_CV.pdf");
+        }
+        catch (Exception ex)
+        {
+            
+            Console.WriteLine($"CV Generation Error: {ex}");
+
+            return StatusCode(500, $"CV generation failed: {ex.Message}");
+        }
     }
 }

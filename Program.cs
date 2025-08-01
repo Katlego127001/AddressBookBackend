@@ -16,6 +16,12 @@ builder.Services.AddDbContext<AddressBookContext>(options =>
 
 var app = builder.Build();
 
+app.UseCors(policy => 
+    policy.WithOrigins("http://localhost:4200")
+          .AllowAnyMethod()
+          .AllowAnyHeader()
+          .WithExposedHeaders("Content-Disposition")); // Crucial for file downloads
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -26,10 +32,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-app.UseCors(policy => 
-    policy.WithOrigins("http://localhost:4200")
-          .AllowAnyMethod()
-          .AllowAnyHeader());
+// app.UseCors(policy => 
+//     policy.WithOrigins("http://localhost:4200")
+//           .AllowAnyMethod()
+//           .AllowAnyHeader());
 
 app.MapControllers();
 
