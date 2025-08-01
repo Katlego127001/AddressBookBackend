@@ -50,9 +50,77 @@ API will be available at https://localhost:5008
 
 Swagger UI at http://localhost:5008/swagger/index.html
 
-API Endpoints
-Endpoint	Method	Description
-/api/contacts	GET	Get all contacts
-/api/contacts/{id}	GET	Get specific contact
-/api/contacts/count	GET	Get total contact count
-/api/contacts/{id}/cv	GET	Download contact's CV (PDF)
+
+Frontend Setup
+1. Prerequisites:
+
+- Node.js (v20+ recommended)
+
+- Angular CLI (v17+)
+
+2. Install dependencies:
+cd address-book-frontend
+npm install
+
+3. Run the frontend:
+ ng serve
+
+ Application will be available at http://localhost:4200
+
+
+API Endpoints:
+
+- /api/contacts	GET	Get all contacts
+- /api/contacts/{id}	GET	Get specific contact
+- /api/contacts/count	GET	Get total contact count
+- /api/contacts/{id}/cv	GET	Download contact's CV (PDF)
+
+Key Features Implementation
+
+CV Download Functionality
+
+Backend (C#):
+
+[HttpGet("{id}/cv")]
+public IActionResult DownloadCv(int id)
+{
+    var tempStream = new MemoryStream();
+    using (var writer = new PdfWriter(tempStream))
+    {
+        // PDF generation logic
+    }
+    var pdfBytes = tempStream.ToArray();
+    return File(new MemoryStream(pdfBytes), "application/pdf", $"{name}_CV.pdf");
+}
+
+Frontend (Angular):
+
+downloadCv(id: number): Observable<Blob> {
+  return this.http.get(`${this.apiUrl}/${id}/cv`, {
+    responseType: 'blob'
+  });
+}
+
+
+Troubleshooting
+
+CV download fails:
+
+Verify iText7 package is installed (dotnet list package)
+
+Check CORS configuration in Program.cs
+
+Test endpoint directly with Postman or cURL
+
+Database issues:
+
+Delete AddressBook.db to force recreation
+
+Check seed data in AddressBookContext.cs
+
+Frontend not connecting:
+
+Verify apiUrl in contact.service.ts
+
+Check browser console for CORS errors
+
